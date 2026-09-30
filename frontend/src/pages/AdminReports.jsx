@@ -13,7 +13,7 @@ function AdminReports() {
       const token = localStorage.getItem("access_token");
 
       const response = await fetch(
-        "http://127.0.0.1:8000/api/auth/admin/reports/",
+        "https://gyanmatrix-backend.onrender.com/api/auth/admin/reports/",
         {
           method: "GET",
           headers: {

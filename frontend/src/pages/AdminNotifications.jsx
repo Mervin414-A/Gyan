@@ -15,7 +15,7 @@ function AdminNotifications() {
       const token = localStorage.getItem("access_token");
 
       const response = await fetch(
-        "http://127.0.0.1:8000/api/admin/notifications/",
+        "https://gyanmatrix-backend.onrender.com/api/admin/notifications/",
         {
           method: "GET",
           headers: {
@@ -50,7 +50,7 @@ function AdminNotifications() {
       const token = localStorage.getItem("access_token");
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/admin/notifications/${notificationId}/read/`,
+        `https://gyanmatrix-backend.onrender.com/api/admin/notifications/${notificationId}/read/`,
         {
           method: "POST",
           headers: {
@@ -86,7 +86,7 @@ function AdminNotifications() {
       const token = localStorage.getItem("access_token");
 
       const response = await fetch(
-        "http://127.0.0.1:8000/api/admin/notifications/read-all/",
+        "https://gyanmatrix-backend.onrender.com/api/admin/notifications/read-all/",
         {
           method: "POST",
           headers: {

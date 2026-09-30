@@ -18,7 +18,7 @@ function AdminEmployees() {
       const token = localStorage.getItem("access_token");
 
       const response = await fetch(
-        "http://127.0.0.1:8000/api/auth/admin/employees/",
+        "https://gyanmatrix-backend.onrender.com/api/auth/admin/employees/",
         {
           method: "GET",
           headers: {
@@ -49,7 +49,7 @@ function AdminEmployees() {
       const token = localStorage.getItem("access_token");
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/auth/admin/employees/${employeeId}/booking-permission/`,
+        `https://gyanmatrix-backend.onrender.com/api/auth/admin/employees/${employeeId}/booking-permission/`,
         {
           method: "PATCH",
           headers: {
@@ -89,7 +89,7 @@ function AdminEmployees() {
       const token = localStorage.getItem("access_token");
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/auth/admin/employees/${employeeId}/status/`,
+        `https://gyanmatrix-backend.onrender.com/api/auth/admin/employees/${employeeId}/status/`,
         {
           method: "POST",
           headers: {

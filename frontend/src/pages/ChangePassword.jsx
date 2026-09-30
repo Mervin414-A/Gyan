@@ -42,7 +42,7 @@ function ChangePassword() {
       }
 
       const response = await fetch(
-        "http://127.0.0.1:8000/api/auth/change-password/",
+        "http://gyanmatrix-backend.onrender.com/api/auth/change-password/",
         {
           method: "POST",
           headers: {

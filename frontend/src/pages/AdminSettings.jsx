@@ -24,7 +24,7 @@ function AdminSettings() {
       const token = localStorage.getItem("access_token");
 
       const response = await fetch(
-        "http://127.0.0.1:8000/api/admin/system-settings/",
+        "https://gyanmatrix-backend.onrender.com/api/admin/system-settings/",
         {
           method: "GET",
           headers: {
@@ -95,7 +95,7 @@ function AdminSettings() {
       };
 
       const response = await fetch(
-        "http://127.0.0.1:8000/api/admin/system-settings/",
+        "http://gyanmatrix-backend.onrender.com/api/admin/system-settings/",
         {
           method: "PUT",
           headers: {

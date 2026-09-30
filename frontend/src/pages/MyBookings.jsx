@@ -61,7 +61,7 @@ function MyBookings() {
       const token = localStorage.getItem("access_token");
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/my-bookings/${bookingId}/cancel/`,
+        `https://gyanmatrix-backend.onrender.com/api/my-bookings/${bookingId}/cancel/`,
         {
           method: "POST",
           headers: {

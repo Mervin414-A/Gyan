@@ -26,8 +26,8 @@ function AdminBookings() {
 
       const url =
         statusFilter === "ALL"
-          ? "http://127.0.0.1:8000/api/admin/bookings/"
-          : `http://127.0.0.1:8000/api/admin/bookings/?status=${statusFilter}`;
+          ? "https://gyanmatrix-backend.onrender.com/api/admin/bookings/"
+          : `https://gyanmatrix-backend.onrender.com/api/admin/bookings/?status=${statusFilter}`;
 
       const response = await fetch(url, {
         method: "GET",
@@ -66,7 +66,7 @@ function AdminBookings() {
       const token = localStorage.getItem("access_token");
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/admin/bookings/${bookingId}/approve/`,
+        `https://gyanmatrix-backend.onrender.com/api/admin/bookings/${bookingId}/approve/`,
         {
           method: "POST",
           headers: {
@@ -104,7 +104,7 @@ function AdminBookings() {
       const token = localStorage.getItem("access_token");
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/admin/bookings/${rejectingId}/reject/`,
+        `https://gyanmatrix-backend.onrender.com/api/admin/bookings/${rejectingId}/reject/`,
         {
           method: "POST",
           headers: {
