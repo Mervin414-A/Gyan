@@ -21,7 +21,7 @@ function Notifications() {
         return;
       }
 
-      const response = await fetch("http://127.0.0.1:8000/api/notifications/", {
+      const response = await fetch("http://gyanmatrix-backend.onrender.com/api/notifications/", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,

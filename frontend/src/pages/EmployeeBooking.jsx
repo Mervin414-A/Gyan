@@ -70,7 +70,7 @@ function EmployeeBooking() {
 
       console.log("Sending booking data:", bookingData);
 
-      const response = await fetch("http://127.0.0.1:8000/api/bookings/", {
+      const response = await fetch("http://gyanmatrix-backend.onrender.com/api/bookings/", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
