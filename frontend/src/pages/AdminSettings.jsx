@@ -95,7 +95,7 @@ function AdminSettings() {
       };
 
       const response = await fetch(
-        "http://gyanmatrix-backend.onrender.com/api/admin/system-settings/",
+        "https://gyanmatrix-backend.onrender.com/api/admin/system-settings/",
         {
           method: "PUT",
           headers: {

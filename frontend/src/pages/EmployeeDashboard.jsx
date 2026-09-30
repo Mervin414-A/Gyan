@@ -9,7 +9,7 @@ function EmployeeDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://gyanmatrix-backend.onrender.com/api/my-bookings/", {
+    fetch("https://gyanmatrix-backend.onrender.com/api/my-bookings/", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${localStorage.getItem("access_token")}`,

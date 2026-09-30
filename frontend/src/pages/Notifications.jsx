@@ -21,7 +21,7 @@ function Notifications() {
         return;
       }
 
-      const response = await fetch("http://gyanmatrix-backend.onrender.com/api/notifications/", {
+      const response = await fetch("https://gyanmatrix-backend.onrender.com/api/notifications/", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -50,7 +50,7 @@ function Notifications() {
       const token = localStorage.getItem("access_token");
 
       const response = await fetch(
-        `http://gyanmatrix-backend.onrender.com/api/notifications/${notificationId}/read/`,
+        `https://gyanmatrix-backend.onrender.com/api/notifications/${notificationId}/read/`,
         {
           method: "POST",
           headers: {

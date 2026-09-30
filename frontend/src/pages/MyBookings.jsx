@@ -22,7 +22,7 @@ function MyBookings() {
     try {
       const token = localStorage.getItem("access_token");
 
-      const response = await fetch("http://gyanmatrix-backend.onrender.com/api/my-bookings/", {
+      const response = await fetch("https://gyanmatrix-backend.onrender.com/api/my-bookings/", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,

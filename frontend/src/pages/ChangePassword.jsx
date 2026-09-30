@@ -42,7 +42,7 @@ function ChangePassword() {
       }
 
       const response = await fetch(
-        "http://gyanmatrix-backend.onrender.com/api/auth/change-password/",
+        "https://gyanmatrix-backend.onrender.com/api/auth/change-password/",
         {
           method: "POST",
           headers: {

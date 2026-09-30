@@ -13,7 +13,7 @@ function MyActivity() {
 
       const token = localStorage.getItem("access_token");
 
-      const response = await fetch("http://gyanmatrix-backend.onrender.com/api/my-activity/", {
+      const response = await fetch("https://gyanmatrix-backend.onrender.com/api/my-activity/", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,

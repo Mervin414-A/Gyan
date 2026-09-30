@@ -24,7 +24,7 @@ function Profile() {
         return;
       }
 
-      const response = await fetch("http://gyanmatrix-backend.onrender.com/api/auth/profile/", {
+      const response = await fetch("https://gyanmatrix-backend.onrender.com/api/auth/profile/", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -58,7 +58,7 @@ function Profile() {
     try {
       const token = localStorage.getItem("access_token");
 
-      const response = await fetch("http://gyanmatrix-backend.onrender.com/api/auth/profile/", {
+      const response = await fetch("https://gyanmatrix-backend.onrender.com/api/auth/profile/", {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
