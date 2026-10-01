@@ -2,6 +2,31 @@ from django.core.mail import send_mail
 from django.conf import settings
 
 
+def _send_email(subject, message, recipient):
+    """
+    Send email without allowing email errors
+    to break the booking API.
+    """
+
+    try:
+        if not recipient:
+            print("Email not sent: employee email is empty.")
+            return
+
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [recipient],
+            fail_silently=True
+        )
+
+        print(f"Email sent successfully to {recipient}")
+
+    except Exception as e:
+        print(f"Email sending failed: {e}")
+
+
 def send_booking_submitted_email(booking):
 
     subject = 'GM Conference Hall Booking Request Submitted'
@@ -27,12 +52,10 @@ Thank you,
 Gyan Matrix
 """
 
-    send_mail(
+    _send_email(
         subject,
         message,
-        settings.DEFAULT_FROM_EMAIL,
-        [booking.employee.email],
-        fail_silently=False
+        booking.employee.email
     )
 
 
@@ -63,12 +86,10 @@ Thank you,
 Gyan Matrix
 """
 
-    send_mail(
+    _send_email(
         subject,
         message,
-        settings.DEFAULT_FROM_EMAIL,
-        [booking.employee.email],
-        fail_silently=False
+        booking.employee.email
     )
 
 
@@ -101,13 +122,12 @@ Thank you,
 Gyan Matrix
 """
 
-    send_mail(
+    _send_email(
         subject,
         message,
-        settings.DEFAULT_FROM_EMAIL,
-        [booking.employee.email],
-        fail_silently=False
+        booking.employee.email
     )
+
 
 def send_booking_cancelled_email(booking):
 
@@ -135,10 +155,8 @@ Thank you,
 Gyan Matrix
 """
 
-    send_mail(
+    _send_email(
         subject,
         message,
-        settings.DEFAULT_FROM_EMAIL,
-        [booking.employee.email],
-        fail_silently=False
+        booking.employee.email
     )
