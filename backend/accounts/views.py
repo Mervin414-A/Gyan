@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, BasePermission
-
+from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
@@ -81,105 +81,85 @@ class LoginView(APIView):
 # GOOGLE LOGIN
 # =========================================================
 
-class GoogleLoginView(APIView):
 
-    authentication_classes = []
-    permission_classes = []
+class GoogleLoginView(APIView):
+    permission_classes = [AllowAny]
 
     def post(self, request):
-
         credential = request.data.get("credential")
 
         if not credential:
             return Response(
-                {"message": "Google credential is required."},
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "Google credential is required"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
-        client_id = getattr(settings, "GOOGLE_CLIENT_ID", "")
-
-        if not client_id:
-            return Response(
-                {"message": "Google Login is not configured."},
-                status=status.HTTP_503_SERVICE_UNAVAILABLE
-            )
-
-        # Verify the credential with Google's authentication library.
         try:
             google_user = id_token.verify_oauth2_token(
                 credential,
                 google_requests.Request(),
-                client_id
+                settings.GOOGLE_CLIENT_ID,
             )
         except ValueError:
             return Response(
-                {"message": "Invalid or expired Google credential."},
-                status=status.HTTP_401_UNAUTHORIZED
+                {"error": "Invalid Google credential"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Accept only verified Google email addresses.
-        email = google_user.get("email")
+        email = google_user.get("email", "").lower()
 
-        if not email or google_user.get("email_verified") is not True:
+        if not email or not google_user.get("email_verified"):
             return Response(
-                {"message": "A verified Google email is required."},
-                status=status.HTTP_401_UNAUTHORIZED
+                {"error": "A verified Google email is required"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Google Login is restricted to existing accounts.
-        try:
-            user = User.objects.get(email__iexact=email)
-        except User.DoesNotExist:
+        user = User.objects.filter(email__iexact=email).first()
+
+        if user and not user.is_active:
             return Response(
-                {
-                    "message": (
-                        "No existing GyanMatrix account matches "
-                        "this Google email. Contact your administrator."
-                    )
-                },
-                status=status.HTTP_403_FORBIDDEN
-            )
-        except User.MultipleObjectsReturned:
-            return Response(
-                {"message": "Multiple accounts match this email. Contact support."},
-                status=status.HTTP_409_CONFLICT
+                {"error": "This account is inactive. Contact the administrator."},
+                status=status.HTTP_403_FORBIDDEN,
             )
 
-        if not user.is_active:
-            return Response(
-                {
-                    "message": (
-                        "Your account is inactive. Please contact admin."
-                    )
-                },
-                status=status.HTTP_403_FORBIDDEN
+        # Create a new employee account if this email is not registered.
+        if user is None:
+            username_base = email.split("@")[0][:120]
+            username = username_base
+            counter = 1
+
+            while User.objects.filter(username=username).exists():
+                username = f"{username_base}{counter}"
+                counter += 1
+
+            full_name = google_user.get("name", "").split()
+            first_name = full_name[0] if full_name else ""
+            last_name = " ".join(full_name[1:]) if len(full_name) > 1 else ""
+
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=None,
+                first_name=first_name,
+                last_name=last_name,
+                employee_id=None,
+                role="EMPLOYEE",
+                is_active=True,
             )
 
-        if user.role not in ("ADMIN", "EMPLOYEE"):
-            return Response(
-                {"message": "Your account role is not authorized."},
-                status=status.HTTP_403_FORBIDDEN
-            )
-
-        # Issue the same JWT format as username/password login.
         refresh = RefreshToken.for_user(user)
 
-        return Response(
-            {
-                "message": "Google login successful",
-                "access": str(refresh.access_token),
-                "refresh": str(refresh),
-                "user": {
-                    "id": user.id,
-                    "username": user.username,
-                    "employee_id": user.employee_id,
-                    "email": user.email,
-                    "phone": user.phone,
-                    "role": user.role,
-                }
+        return Response({
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "employee_id": user.employee_id,
+                "email": user.email,
+                "role": user.role,
             },
-            status=status.HTTP_200_OK
-        )
+        })
 
 class RegisterEmployeeView(APIView):
     def post(self, request):
