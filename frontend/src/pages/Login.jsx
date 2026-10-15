@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logoImg from "../assets/gyanmatrix-logo.png";
+import { GoogleLogin } from "@react-oauth/google";
 
 function Login() {
   const navigate = useNavigate();
@@ -195,6 +196,30 @@ function Login() {
                 {loading ? "Authenticating..." : "Sign In to Portal →"}
               </button>
             </form>
+            <div style={{ marginTop: "18px", textAlign: "center" }}>
+              <p style={{ color: "#64748b", fontSize: "13px" }}>
+                Or continue with
+              </p>
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  marginTop: "12px",
+                }}
+              >
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => setErrorMsg("Google login failed. Please try again.")}
+                  useOneTap={false}
+                  theme="outline"
+                  size="large"
+                  text="continue_with"
+                  shape="rectangular"
+                  width="280"
+                />
+              </div>
+            </div>
 
             <div style={styles.registerSection}>
               <div style={styles.divider}>

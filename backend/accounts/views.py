@@ -1,6 +1,9 @@
 from django.contrib.auth import authenticate
 from django.db.models import Count
 from django.utils import timezone
+from django.conf import settings
+from google.auth.transport import requests as google_requests
+from google.oauth2 import id_token
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -72,6 +75,112 @@ class LoginView(APIView):
             },
             status=status.HTTP_200_OK
         )
+
+
+# =========================================================
+# GOOGLE LOGIN
+# =========================================================
+
+class GoogleLoginView(APIView):
+
+    authentication_classes = []
+    permission_classes = []
+
+    def post(self, request):
+
+        credential = request.data.get("credential")
+
+        if not credential:
+            return Response(
+                {"message": "Google credential is required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        client_id = getattr(settings, "GOOGLE_CLIENT_ID", "")
+
+        if not client_id:
+            return Response(
+                {"message": "Google Login is not configured."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+
+        # Verify the credential with Google's authentication library.
+        try:
+            google_user = id_token.verify_oauth2_token(
+                credential,
+                google_requests.Request(),
+                client_id
+            )
+        except ValueError:
+            return Response(
+                {"message": "Invalid or expired Google credential."},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        # Accept only verified Google email addresses.
+        email = google_user.get("email")
+
+        if not email or google_user.get("email_verified") is not True:
+            return Response(
+                {"message": "A verified Google email is required."},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        # Google Login is restricted to existing accounts.
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            return Response(
+                {
+                    "message": (
+                        "No existing GyanMatrix account matches "
+                        "this Google email. Contact your administrator."
+                    )
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+        except User.MultipleObjectsReturned:
+            return Response(
+                {"message": "Multiple accounts match this email. Contact support."},
+                status=status.HTTP_409_CONFLICT
+            )
+
+        if not user.is_active:
+            return Response(
+                {
+                    "message": (
+                        "Your account is inactive. Please contact admin."
+                    )
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        if user.role not in ("ADMIN", "EMPLOYEE"):
+            return Response(
+                {"message": "Your account role is not authorized."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Issue the same JWT format as username/password login.
+        refresh = RefreshToken.for_user(user)
+
+        return Response(
+            {
+                "message": "Google login successful",
+                "access": str(refresh.access_token),
+                "refresh": str(refresh),
+                "user": {
+                    "id": user.id,
+                    "username": user.username,
+                    "employee_id": user.employee_id,
+                    "email": user.email,
+                    "phone": user.phone,
+                    "role": user.role,
+                }
+            },
+            status=status.HTTP_200_OK
+        )
+
 class RegisterEmployeeView(APIView):
     def post(self, request):
         employee_id = request.data.get("employee_id")
