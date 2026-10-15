@@ -69,6 +69,60 @@ function Login() {
       setLoading(false);
     }
   };
+  
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setErrorMsg("");
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        "https://gyanmatrix-backend.onrender.com/api/auth/google/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            credential: credentialResponse.credential,
+          }),
+        }
+      );
+
+      const data = await response.json();
+      console.log("Google login response:", data);
+
+      if (!response.ok) {
+        setErrorMsg(
+          data.error || data.detail || data.message ||
+          "Google login failed. Please try again."
+        );
+        return;
+      }
+
+      localStorage.setItem("access_token", data.access);
+      localStorage.setItem("refresh_token", data.refresh);
+
+      if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        if (data.user.role === "ADMIN") {
+          navigate("/admin/dashboard");
+        } else if (data.user.role === "EMPLOYEE") {
+          navigate("/employee/dashboard");
+        } else {
+          setErrorMsg("Unknown user role. Please contact support.");
+        }
+      } else {
+        setErrorMsg("User information was not returned by the server.");
+      }
+    } catch (error) {
+      console.error("Google login error:", error);
+      setErrorMsg("Unable to connect to the server. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   return (
     <div style={styles.pageWrapper}>
