@@ -37,18 +37,16 @@ export const apiFetch = async (url, options = {}) => {
       }
     );
 
+    const refreshData = await refreshResponse.json();
+
     if (refreshResponse.ok) {
-      const refreshData = await refreshResponse.json();
       accessToken = refreshData.access;
-
       localStorage.setItem("access_token", accessToken);
-
       response = await makeRequest(accessToken);
     } else {
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
       localStorage.removeItem("user");
-
       window.location.href = "/login";
       return null;
     }
