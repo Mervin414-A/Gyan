@@ -1,10 +1,17 @@
+
 from django.conf import settings
 from twilio.rest import Client
-def send_booking_approval_sms(user, booking):
+import logging
+
+
+logger = logging.getLogger(__name__)
+
+
+def send_permission_sms(user):
+    """Send SMS when an employee receives booking permission."""
     if not user.phone:
-        print(
-            f"Booking SMS not sent: "
-            f"{user.username} has no phone number."
+        logger.warning(
+            "Permission SMS not sent: employee has no phone number."
         )
         return False
 
@@ -17,25 +24,50 @@ def send_booking_approval_sms(user, booking):
         message = client.messages.create(
             body=(
                 "GyanMatrix: Your conference hall booking "
-                f"for {booking.booking_date}, "
-                f"from {booking.start_time.strftime('%I:%M %p')} "
-                f"to {booking.end_time.strftime('%I:%M %p')} "
-                "has been APPROVED by the admin."
+                "permission has been granted. You can now "
+                "request a booking."
             ),
             from_=settings.TWILIO_PHONE_NUMBER,
             to=user.phone,
         )
 
-        print(
-            f"Booking approval SMS submitted. "
-            f"SID: {message.sid}"
-        )
+        logger.info("Permission SMS submitted: %s", message.sid)
         return True
 
     except Exception:
-        import logging
+        logger.exception("Failed to send booking permission SMS.")
+        return False
 
-        logging.getLogger(__name__).exception(
-            "Failed to send booking approval SMS."
+
+def send_booking_approval_sms(user, booking):
+    """Send SMS when an admin approves an employee's booking."""
+    if not user.phone:
+        logger.warning(
+            "Booking approval SMS not sent: no phone number."
         )
+        return False
+
+    try:
+        client = Client(
+            settings.TWILIO_ACCOUNT_SID,
+            settings.TWILIO_AUTH_TOKEN,
+        )
+
+        message = client.messages.create(
+            body=(
+                "GyanMatrix: Your conference hall booking "
+                f"for {booking.booking_date}, from "
+                f"{booking.start_time.strftime('%I:%M %p')} to "
+                f"{booking.end_time.strftime('%I:%M %p')} "
+                "has been approved by the admin."
+            ),
+            from_=settings.TWILIO_PHONE_NUMBER,
+            to=user.phone,
+        )
+
+        logger.info("Booking approval SMS submitted: %s", message.sid)
+        return True
+
+    except Exception:
+        logger.exception("Failed to send booking approval SMS.")
         return False
