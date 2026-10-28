@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.conf import settings
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
-
+from .sms_service import send_permission_sms
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -508,14 +508,12 @@ class AdminBookingPermissionView(APIView):
     def patch(self, request, employee_id):
 
         try:
-
             employee = User.objects.get(
                 id=employee_id,
                 role="EMPLOYEE"
             )
 
         except User.DoesNotExist:
-
             return Response(
                 {
                     "message": "Employee not found."
@@ -526,7 +524,6 @@ class AdminBookingPermissionView(APIView):
         can_book = request.data.get("can_book")
 
         if can_book is None:
-
             return Response(
                 {
                     "message": "can_book is required."
@@ -535,11 +532,9 @@ class AdminBookingPermissionView(APIView):
             )
 
         if isinstance(can_book, str):
-
             can_book = can_book.lower() == "true"
 
         if not isinstance(can_book, bool):
-
             return Response(
                 {
                     "message": "can_book must be true or false."
@@ -563,6 +558,12 @@ class AdminBookingPermissionView(APIView):
 
         permission.save()
 
+        # Send SMS only when permission is granted.
+        sms_sent = False
+
+        if can_book:
+            sms_sent = send_permission_sms(employee)
+
         return Response(
             {
                 "message": (
@@ -570,6 +571,7 @@ class AdminBookingPermissionView(APIView):
                     if can_book
                     else "Booking permission revoked."
                 ),
+                "sms_sent": sms_sent,
                 "employee": {
                     "id": employee.id,
                     "employee_id": employee.employee_id,
@@ -579,7 +581,6 @@ class AdminBookingPermissionView(APIView):
             },
             status=status.HTTP_200_OK
         )
-
 
 # =========================================================
 # ADMIN EMPLOYEE STATUS
