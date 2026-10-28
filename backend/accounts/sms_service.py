@@ -1,3 +1,5 @@
+from django.conf import settings
+from twilio.rest import Client
 def send_booking_approval_sms(user, booking):
     if not user.phone:
         print(
