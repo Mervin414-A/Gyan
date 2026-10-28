@@ -8,7 +8,7 @@ from .models import RoomBooking
 from .serializers import RoomBookingSerializer
 from accounts.views import IsAdminUser
 from reports.models import SystemSetting
-
+from accounts.sms_service import send_booking_approval_sms
 from .email_utils import (
     send_booking_submitted_email,
     send_booking_approved_email,
@@ -340,6 +340,10 @@ class AdminApproveBookingView(APIView):
         booking.approved_at = timezone.now()
 
         booking.save()
+        sms_sent = send_booking_approval_sms(
+            booking.employee,
+            booking
+        )
 
         settings = SystemSetting.objects.first()
 
@@ -359,9 +363,8 @@ class AdminApproveBookingView(APIView):
 
         return Response(
             {
-                'message': (
-                    'Booking approved successfully.'
-                ),
+                'message': 'Booking approved successfully.',
+                'sms_sent': sms_sent,
                 'booking': RoomBookingSerializer(
                     booking
                 ).data
